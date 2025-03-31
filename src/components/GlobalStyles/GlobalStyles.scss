@@ -1,0 +1,19 @@
+@import 'normalize.css';
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+
+:root {
+  --primary-color: #fe2c55;
+}
+
+html {
+  // 62.5% tương đương với 10px
+  font-size: 62.5%;
+}
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 1.6rem;
+  line-height: 1.5;
+  // Tối ưu tốc độ hiển thị phông chữ
+  text-rendering: optimizeSpeed;
+}
