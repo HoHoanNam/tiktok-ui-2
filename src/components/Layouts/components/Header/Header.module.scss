@@ -1,0 +1,15 @@
+.wrapper {
+  width: 100%;
+  // TH không khai báo biến thì lấy mặc định là 60
+  height: var(--default-layout-header-height, 60);
+  // rgb(0 0 0 / 12%) sẽ tương đương với rgba(0, 0, 0, 0.12)
+  box-shadow: 0 1px 1px rgb(0 0 0 / 12%);
+  display: flex;
+  justify-content: center;
+}
+
+.inner {
+  height: 100%;
+  width: var(--default-layout-width);
+  background-color: #aa60c8;
+}
