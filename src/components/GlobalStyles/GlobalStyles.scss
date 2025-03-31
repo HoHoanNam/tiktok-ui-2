@@ -5,6 +5,10 @@
   --primary-color: #fe2c55;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 html {
   // 62.5% tương đương với 10px
   font-size: 62.5%;
