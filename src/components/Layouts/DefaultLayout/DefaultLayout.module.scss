@@ -7,7 +7,7 @@
 .container {
   display: flex;
   width: var(--default-layout-width);
-  background-color: #c599b6;
+  padding: 0 var(--default-layout-horizontal-spacer);
 }
 
 .content {
