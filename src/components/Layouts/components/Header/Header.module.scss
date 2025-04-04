@@ -101,10 +101,33 @@
   }
 }
 
+// Actions
+.actions {
+  display: flex;
+  align-items: center;
+}
+
 .more-btn {
   cursor: pointer;
   font-size: 2rem;
   padding: 4px 8px;
   margin-left: 28px;
   background-color: transparent;
+}
+
+.action-btn {
+  cursor: pointer;
+  color: #161823;
+  font-size: 2.2rem;
+  padding: 4px 12px;
+  background-color: transparent;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  object-fit: cover;
+  margin-left: 12px;
+  border-radius: 50%;
 }
