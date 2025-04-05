@@ -84,6 +84,9 @@
 }
 
 .search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: var(--search-button-width);
   height: 100%;
   border-top-right-radius: var(--search-border-radius);
@@ -116,11 +119,28 @@
 }
 
 .action-btn {
+  display: flex;
   cursor: pointer;
   color: #161823;
   font-size: 2.2rem;
-  padding: 4px 12px;
+  padding: 4px 10px;
+  position: relative;
   background-color: transparent;
+}
+
+.badge {
+  top: -3px;
+  right: 0px;
+  height: 2rem;
+  padding: 0 6px;
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 2rem;
+  position: absolute;
+  border-radius: 10px;
+  color: var(--white);
+  background-color: var(--primary);
+  font-family: var(--font), sans-serif;
 }
 
 .user-avatar {
@@ -128,6 +148,6 @@
   height: 32px;
   cursor: pointer;
   object-fit: cover;
-  margin-left: 12px;
+  margin-left: 14px;
   border-radius: 50%;
 }

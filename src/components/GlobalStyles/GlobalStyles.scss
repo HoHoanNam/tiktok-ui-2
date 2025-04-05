@@ -6,7 +6,7 @@
   --black: #000;
   --white: #fff;
   --text-color: #161823;
-  --font: 'IBM Plex Sans', sans-serif;
+  --font: 'TikTokFont', sans-serif;
 
   // Default layout
   --default-layout-width: 1150px;
@@ -47,6 +47,26 @@ a[href] {
   text-decoration: none;
   color: var(--text-color);
   font-family: var(--font);
+}
+
+// Font embedded
+// IBM Plex Sans === TikTokFont
+@font-face {
+  font-family: TikTokFont;
+  src: url('/assets/fonts/TikTokFont-Regular.woff2') format('opentype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: TikTokFont;
+  src: url('/assets/fonts/TikTokFont-Semibold.woff2') format('opentype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: TikTokFont;
+  src: url('/assets/fonts/TikTokFont-Bold.woff2') format('opentype');
+  font-weight: 700;
 }
 
 // Custom Tippy tooltip
