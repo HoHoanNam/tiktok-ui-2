@@ -22,88 +22,6 @@
   width: var(--default-layout-width);
 }
 
-.search,
-.search-result {
-  width: 361px;
-}
-
-.search {
-  position: relative;
-  height: var(--search-height);
-  display: flex;
-  padding-left: 16px;
-  align-items: center;
-  border: 1.5px solid transparent;
-  border-radius: var(--search-border-radius);
-  background-color: rgba(22, 24, 35, 0.06);
-
-  input {
-    flex: 1;
-    height: 100%;
-    color: var(--black);
-    font-size: 1.6rem;
-    background-color: transparent;
-    caret-color: var(--primary);
-  }
-
-  // Khi input có giá trị bên trong,
-  // .search-btn sẽ ăn theo CSS của selector này
-  input:not(:placeholder-shown) ~ .search-btn {
-    color: rgba(22, 24, 35, 0.75);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: var(--search-top-spacer);
-    right: var(--search-button-width);
-    width: 1px;
-    height: calc(var(--search-height) - var(--search-top-spacer) * 2);
-    background-color: rgba(22, 24, 35, 0.12);
-  }
-
-  &:focus-within {
-    border-color: rgba(22, 24, 35, 0.2);
-  }
-}
-
-.search-title {
-  font-weight: 600;
-  font-size: 1.4rem;
-  padding: 5px 12px;
-  color: rgba(22, 24, 35, 0.5);
-}
-
-.clear,
-.loading {
-  position: absolute;
-  top: 50%;
-  right: calc(var(--search-button-width) + 16px);
-  transform: translateY(-50%);
-  color: rgba(22, 24, 35, 0.34);
-}
-
-.search-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--search-button-width);
-  height: 100%;
-  border-top-right-radius: var(--search-border-radius);
-  border-bottom-right-radius: var(--search-border-radius);
-  font-size: 1.8rem;
-  color: rgba(22, 24, 35, 0.34);
-
-  &:hover {
-    cursor: pointer;
-    background-color: rgba(22, 24, 35, 0.03);
-  }
-
-  &:active {
-    background-color: rgba(22, 24, 35, 0.06);
-  }
-}
-
 // Actions
 .actions {
   display: flex;
@@ -129,12 +47,12 @@
 }
 
 .badge {
+  right: 0;
   top: -3px;
-  right: 0px;
   height: 2rem;
   padding: 0 6px;
   font-weight: 600;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   line-height: 2rem;
   position: absolute;
   border-radius: 10px;
