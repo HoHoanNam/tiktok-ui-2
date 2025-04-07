@@ -22,6 +22,10 @@
   width: var(--default-layout-width);
 }
 
+.logo-link {
+  display: flex;
+}
+
 // Actions
 .actions {
   display: flex;

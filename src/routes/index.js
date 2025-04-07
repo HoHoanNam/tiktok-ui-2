@@ -1,4 +1,5 @@
 // Layouts
+import routesConfig from '~/config/routes';
 import { HeaderOnly } from '~/components/Layouts';
 
 // Pages
@@ -10,12 +11,12 @@ import Following from '~/pages/Following';
 
 // Không cần đăng nhập vẫn vào được
 const publicRoutes = [
-  { path: '/', component: Home },
+  { path: routesConfig.home, component: Home },
   // @ là dấu cố định, :nickname là pattern nên nó có thể thay đổi
-  { path: '/profile/:nickname', component: Profile },
-  { path: '/following', component: Following },
-  { path: '/search', component: Search, layout: null },
-  { path: '/upload', component: Upload, layout: HeaderOnly },
+  { path: routesConfig.profile, component: Profile },
+  { path: routesConfig.following, component: Following },
+  { path: routesConfig.search, component: Search, layout: null },
+  { path: routesConfig.upload, component: Upload, layout: HeaderOnly },
 ];
 
 // Phải đăng nhập mới vào được
