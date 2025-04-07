@@ -9,6 +9,7 @@ import styles from './Search.module.scss';
 import { SearchIcon } from '~/components/Icons';
 import AccountItem from '~/components/AccountItem';
 import { Wrapper as PopperWrapper } from '~/components/Popper';
+import * as searchServices from '~/apiServices/searchServices';
 
 const cx = classNames.bind(styles);
 
@@ -29,16 +30,16 @@ function Search() {
     }
 
     // Gọi API khi giá trị debounced thay đổi
-    setLoading(true);
-    fetch(`https://tiktok.fullstack.edu.vn/api/users/search?q=${encodeURIComponent(debounced)}&type=less`)
-      .then((res) => res.json())
-      .then((res) => {
-        setSearchResult(res.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+    const fetchApi = async () => {
+      setLoading(true);
+
+      const result = await searchServices.search(debounced);
+      setSearchResult(result);
+
+      setLoading(false);
+    };
+
+    fetchApi();
   }, [debounced]); // Chỉ chạy lại khi debounced thay đổi
 
   const handleClear = () => {
