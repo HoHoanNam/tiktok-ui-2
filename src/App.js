@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoutes } from '~/routes';
-import { DefaultLayout } from '~/components/Layouts';
+import DefaultLayout from '~/layouts';
 import './App.css'; // Hoặc dùng CSS module nếu bạn muốn
 
 function App() {
