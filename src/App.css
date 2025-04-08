@@ -1,0 +1,41 @@
+.App {
+  height: 100vh;
+  overflow: hidden; /* Ẩn thanh cuộn mặc định của App */
+  position: relative; /* Để custom-scrollbar định vị đúng */
+}
+
+.content-wrapper {
+  height: 100%;
+  overflow-y: scroll; /* Nội dung thật vẫn cuộn được */
+  scrollbar-width: none; /* Ẩn thanh cuộn mặc định trên Firefox */
+}
+
+.content-wrapper::-webkit-scrollbar {
+  display: none; /* Ẩn thanh cuộn mặc định trên Webkit */
+}
+
+/* Thanh cuộn giả */
+.custom-scrollbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  background: transparent;
+  z-index: 1000; /* Đảm bảo nổi lên trên */
+  pointer-events: none; /* Không cản tương tác nội dung */
+}
+
+.scrollbar-thumb {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  position: absolute;
+  top: 0;
+  pointer-events: auto; /* Cho phép kéo thanh cuộn */
+  cursor: pointer;
+}
+
+.scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}

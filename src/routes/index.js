@@ -12,7 +12,6 @@ import Following from '~/pages/Following';
 // Không cần đăng nhập vẫn vào được
 const publicRoutes = [
   { path: routesConfig.home, component: Home },
-  // @ là dấu cố định, :nickname là pattern nên nó có thể thay đổi
   { path: routesConfig.profile, component: Profile },
   { path: routesConfig.following, component: Following },
   { path: routesConfig.search, component: Search, layout: null },
