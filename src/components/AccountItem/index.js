@@ -1,5 +1,6 @@
-import classNames from 'classnames/bind';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -22,5 +23,10 @@ function AccountItem({ data }) {
     </Link>
   );
 }
+
+AccountItem.propTypes = {
+  // Đưa các cái props mà bạn muốn validate vào đây
+  data: PropTypes.object,
+};
 
 export default AccountItem;
