@@ -26,7 +26,7 @@ function AccountItem({ data }) {
 
 AccountItem.propTypes = {
   // Đưa các cái props mà bạn muốn validate vào đây
-  data: PropTypes.object,
+  data: PropTypes.object.isRequired,
 };
 
 export default AccountItem;
