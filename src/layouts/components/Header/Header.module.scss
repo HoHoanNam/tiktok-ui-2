@@ -70,11 +70,19 @@
   font-family: var(--font), sans-serif;
 }
 
+.avatar-wrapper {
+  width: 52px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
 .user-avatar {
   width: 32px;
   height: 32px;
   cursor: pointer;
   object-fit: cover;
-  margin-left: 14px;
   border-radius: 50%;
 }
