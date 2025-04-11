@@ -16,31 +16,31 @@ const cx = classNames.bind(styles);
 function Search() {
   const [searchValue, setSearchValue] = useState('');
   const [searchResult, setSearchResult] = useState([]);
-  const [showResult, setShowResult] = useState(true);
+  const [showResult, setShowResult] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const inputRef = useRef();
-  const debounced = useDebounce(searchValue, 1000);
+  const debouncedValue = useDebounce(searchValue, 1000);
 
   useEffect(() => {
-    // Nếu debounced rỗng, reset kết quả và thoát
-    if (!debounced.trim()) {
+    // Nếu debouncedValue rỗng, reset kết quả và thoát
+    if (!debouncedValue.trim()) {
       setSearchResult([]);
       return;
     }
 
-    // Gọi API khi giá trị debounced thay đổi
+    // Gọi API khi giá trị debouncedValue thay đổi
     const fetchApi = async () => {
       setLoading(true);
 
-      const result = await searchServices.search(debounced);
+      const result = await searchServices.search(debouncedValue);
       setSearchResult(result);
 
       setLoading(false);
     };
 
     fetchApi();
-  }, [debounced]); // Chỉ chạy lại khi debounced thay đổi
+  }, [debouncedValue]); // Chỉ chạy lại khi debouncedValue thay đổi
 
   const handleClear = () => {
     setSearchValue('');

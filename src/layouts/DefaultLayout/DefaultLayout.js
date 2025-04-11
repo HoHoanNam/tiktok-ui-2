@@ -3,6 +3,7 @@ import classNames from 'classnames/bind';
 import Header from '~/layouts/components/Header';
 import styles from './DefaultLayout.module.scss';
 import Sidebar from './Sidebar';
+import Video from '../components/Video';
 
 const cx = classNames.bind(styles);
 
@@ -12,7 +13,9 @@ function DefaultLayout({ children }) {
       <Header />
       <div className={cx('container')}>
         <Sidebar />
-        <div className={cx('content')}>{children}</div>
+        <div className={cx('content')}>
+          <Video />
+        </div>
       </div>
     </div>
   );
