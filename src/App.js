@@ -75,7 +75,7 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="App">
         <div className="content-wrapper" ref={contentRef}>
           <Routes>
