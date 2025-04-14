@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -32,116 +33,8 @@ const MENU_ITEMS = [
     children: {
       title: 'Language',
       data: [
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
-        {
-          type: 'language',
-          code: 'en',
-          title: 'English',
-        },
-        {
-          type: 'language',
-          code: 'vi',
-          title: 'Tiếng Việt',
-        },
+        { type: 'language', code: 'en', title: 'English' },
+        { type: 'language', code: 'vi', title: 'Tiếng Việt' },
       ],
     },
   },
@@ -157,18 +50,56 @@ const MENU_ITEMS = [
 ];
 
 function Header() {
-  const currentUser = true;
+  // Khởi tạo currentUser từ localStorage ngay từ đầu
+  const [currentUser, setCurrentUser] = useState(() => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  });
+  const navigate = useNavigate();
+
+  // Debug: Xóa dòng này nếu không cần
+  console.log(currentUser);
+
+  // Đồng bộ currentUser nếu localStorage thay đổi (ví dụ: đăng nhập ở tab khác)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const user = localStorage.getItem('user');
+      setCurrentUser(user ? JSON.parse(user) : null);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Handle logic
-  const handleMenuChange = (menuItem) => {
-    console.log(menuItem);
+  const handleMenuChange = async (menuItem) => {
+    if (menuItem.to === '/') {
+      try {
+        // Gọi API logout
+        await fetch('http://localhost:5000/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+
+      // Xóa thông tin user và token
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setCurrentUser(null);
+      navigate(config.routes.home);
+    }
   };
 
   const userMenu = [
     {
       icon: <FontAwesomeIcon icon={faUser} />,
       title: 'View profile',
-      to: '/@ive.official',
+      to: `/@${currentUser?.username || 'user'}`,
     },
     {
       icon: <FontAwesomeIcon icon={faCoins} />,
@@ -184,7 +115,7 @@ function Header() {
     {
       icon: <FontAwesomeIcon icon={faRightFromBracket} />,
       title: 'Log out',
-      to: '/logout',
+      to: '/',
       separate: true,
     },
   ];
@@ -224,15 +155,19 @@ function Header() {
             </>
           ) : (
             <>
-              <Button text>Upload</Button>
-              <Button primary>Log in</Button>
+              <Button primary to={config.routes.login}>
+                Log in
+              </Button>
+              <Button outline to={config.routes.register}>
+                Register
+              </Button>
             </>
           )}
 
           <Menu items={currentUser ? userMenu : MENU_ITEMS} onChange={handleMenuChange}>
             {currentUser ? (
               <div className={cx('avatar-wrapper')}>
-                <Image src={images.avatar} className={cx('user-avatar')} alt="IVE" />
+                <Image src={images.avatar} className={cx('user-avatar')} alt={currentUser.username || 'User'} />
               </div>
             ) : (
               <button className={cx('more-btn')}>

@@ -6,6 +6,8 @@ const routes = {
   following: '/following',
   // @ là dấu cố định, :nickname là pattern nên nó có thể thay đổi
   profile: '/profile/:nickname',
+  login: '/login',
+  register: '/register',
 };
 
 export default routes;

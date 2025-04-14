@@ -57,7 +57,7 @@
 }
 
 .outline {
-  color: var(--primary);
+  color: var(--primary) !important;
   // Ăn theo màu text
   border-color: currentColor;
 
