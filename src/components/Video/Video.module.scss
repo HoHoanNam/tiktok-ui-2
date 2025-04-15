@@ -1,0 +1,55 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+.video-container {
+  text-align: center;
+}
+
+.video-title {
+  margin-top: -60px;
+}
+
+.video {
+  width: 100%;
+  max-width: 360px; // Chuẩn 9:16 (360x640)
+  height: 640px;
+  background-color: black;
+  border-radius: 8px;
+  object-fit: cover;
+
+  &::-webkit-media-controls {
+    display: none !important; // Ẩn controls mặc định
+  }
+
+  &:hover {
+    &::-webkit-media-controls {
+      display: flex !important; // Hiện controls khi hover
+    }
+  }
+}
+
+.custom-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+
+  button {
+    padding: 8px 16px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}

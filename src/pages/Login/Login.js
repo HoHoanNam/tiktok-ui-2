@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './Auth.module.scss';
-import config from '~/config';
+import { routes } from '~/config';
 
 const cx = classNames.bind(styles);
 
@@ -24,7 +24,7 @@ function Login() {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate(config.routes.home);
+        navigate(routes.home);
       } else {
         setError(data.message || 'Login failed');
       }
@@ -51,7 +51,7 @@ function Login() {
         </button>
       </form>
       <p>
-        Don't have an account? <Link to={config.routes.register}>Register</Link>
+        Don't have an account? <Link to={routes.register}>Register</Link>
       </p>
     </div>
   );

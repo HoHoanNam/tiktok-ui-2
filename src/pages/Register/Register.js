@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from '../Login/Auth.module.scss';
-import config from '~/config';
+import { routes } from '~/config';
 
 const cx = classNames.bind(styles);
 
@@ -25,7 +25,7 @@ function Register() {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate(config.routes.home);
+        navigate(routes.home);
       } else {
         setError(data.message || 'Registration failed');
       }
@@ -56,7 +56,7 @@ function Register() {
         </button>
       </form>
       <p>
-        Already have an account? <Link to={config.routes.login}>Log In</Link>
+        Already have an account? <Link to={routes.login}>Log In</Link>
       </p>
     </div>
   );

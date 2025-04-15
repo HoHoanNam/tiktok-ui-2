@@ -1,9 +1,11 @@
 import { Fragment } from 'react';
 import { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { publicRoutes } from '~/routes';
+
+import './App.css';
 import DefaultLayout from '~/layouts';
-import './App.css'; // Hoặc dùng CSS module nếu bạn muốn
+import { publicRoutes, privateRoutes } from '~/config';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const contentRef = useRef(null);
@@ -65,7 +67,7 @@ function App() {
     if (content) {
       content.addEventListener('scroll', updateScrollbar);
       window.addEventListener('resize', updateScrollbar);
-      updateScrollbar(); // Cập nhật lần đầu
+      updateScrollbar();
 
       return () => {
         content.removeEventListener('scroll', updateScrollbar);
@@ -74,35 +76,70 @@ function App() {
     }
   }, []);
 
+  // Gộp tất cả routes, nhưng tách biệt logic áp dụng ProtectedRoute
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="App">
-        <div className="content-wrapper" ref={contentRef}>
-          <Routes>
-            {publicRoutes.map((route, index) => {
-              const Page = route.component;
+        <Routes>
+          {/* Render publicRoutes - Không cần đăng nhập */}
+          {publicRoutes.map((route, index) => {
+            const Page = route.component;
+            let Layout = DefaultLayout;
 
-              let Layout = DefaultLayout;
-              if (route.layout) {
-                Layout = route.layout;
-              } else if (route.layout === null) {
-                Layout = Fragment;
-              }
+            if (route.layout) {
+              Layout = route.layout;
+            } else if (route.layout === null) {
+              Layout = Fragment;
+            }
 
-              return (
-                <Route
-                  key={index}
-                  path={route.path}
-                  element={
+            return (
+              <Route
+                key={`public-${index}`}
+                path={route.path}
+                element={
+                  <div
+                    className={Layout === DefaultLayout ? 'content-wrapper' : ''}
+                    ref={Layout === DefaultLayout ? contentRef : null}
+                  >
                     <Layout>
                       <Page />
                     </Layout>
-                  }
-                />
-              );
-            })}
-          </Routes>
-        </div>
+                  </div>
+                }
+              />
+            );
+          })}
+          {/* Render privateRoutes - Cần đăng nhập */}
+          {privateRoutes.map((route, index) => {
+            const Page = route.component;
+            let Layout = DefaultLayout;
+
+            if (route.layout) {
+              Layout = route.layout;
+            } else if (route.layout === null) {
+              Layout = Fragment;
+            }
+
+            return (
+              <Route
+                key={`private-${index}`}
+                path={route.path}
+                element={
+                  <ProtectedRoute>
+                    <div
+                      className={Layout === DefaultLayout ? 'content-wrapper' : ''}
+                      ref={Layout === DefaultLayout ? contentRef : null}
+                    >
+                      <Layout>
+                        <Page />
+                      </Layout>
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+            );
+          })}
+        </Routes>
         <div className="custom-scrollbar">
           <div className="scrollbar-thumb" ref={thumbRef} onMouseDown={handleMouseDown} />
         </div>

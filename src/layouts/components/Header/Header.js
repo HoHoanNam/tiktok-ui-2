@@ -15,7 +15,7 @@ import {
 import 'tippy.js/dist/tippy.css';
 import Tippy from '@tippyjs/react';
 
-import config from '~/config';
+import { routes } from '~/config';
 import Search from '../Search';
 import images from '~/assets/images';
 import Image from '~/components/Image';
@@ -91,7 +91,7 @@ function Header() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setCurrentUser(null);
-      navigate(config.routes.home);
+      navigate(routes.home);
     }
   };
 
@@ -124,7 +124,7 @@ function Header() {
     <header className={cx('wrapper')}>
       <div className={cx('inner')}>
         {/* Logo */}
-        <Link to={config.routes.home} className={cx('logo-link')}>
+        <Link to={routes.home} className={cx('logo-link')}>
           <img src={images.logo} alt="TikTok" />
         </Link>
 
@@ -134,11 +134,13 @@ function Header() {
         <div className={cx('actions')}>
           {currentUser ? (
             <>
-              <Tippy delay={[0, 50]} content="Upload video" placement="bottom">
-                <button className={cx('action-btn')}>
-                  <UploadIcon />
-                </button>
-              </Tippy>
+              <Link to={routes.upload}>
+                <Tippy delay={[0, 50]} content="Upload video" placement="bottom">
+                  <button className={cx('action-btn')}>
+                    <UploadIcon />
+                  </button>
+                </Tippy>
+              </Link>
 
               <Tippy delay={[0, 50]} content="Message" placement="bottom">
                 <button className={cx('action-btn')} style={{ padding: '7px 13px' }}>
@@ -155,10 +157,10 @@ function Header() {
             </>
           ) : (
             <>
-              <Button primary to={config.routes.login}>
+              <Button primary to={routes.login}>
                 Log in
               </Button>
-              <Button outline to={config.routes.register}>
+              <Button outline to={routes.register}>
                 Register
               </Button>
             </>
