@@ -1,111 +1,215 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './Upload.module.scss';
 import { routes } from '~/config';
+import { FFmpeg } from '@ffmpeg/ffmpeg'; // Import FFmpeg class
 
 const cx = classNames.bind(styles);
 
+// Khởi tạo FFmpeg instance
+const ffmpeg = new FFmpeg();
+
 function Upload() {
-  // Khởi tạo state để lưu file video được chọn, tiêu đề, lỗi, và trạng thái uploading
-  const [selectedFile, setSelectedFile] = useState(null); // Lưu file video được chọn
-  const [title, setTitle] = useState(''); // Lưu tiêu đề video
-  const [error, setError] = useState(''); // Lưu thông báo lỗi (nếu có)
-  const [isUploading, setIsUploading] = useState(false); // Trạng thái đang upload hay không
-  const videoRef = useRef(null); // Ref để gắn vào thẻ <video> hiển thị preview
-  const navigate = useNavigate(); // Hook để điều hướng sau khi upload thành công
+  // Khởi tạo state
+  const [selectedFile, setSelectedFile] = useState(null); // File video được chọn
+  const [processedFile, setProcessedFile] = useState(null); // File video đã xử lý (9:16)
+  const [title, setTitle] = useState(''); // Tiêu đề video
+  const [error, setError] = useState(''); // Thông báo lỗi
+  const [isUploading, setIsUploading] = useState(false); // Trạng thái đang upload
+  const [isProcessing, setIsProcessing] = useState(false); // Trạng thái đang xử lý
+  const [isFFmpegLoaded, setIsFFmpegLoaded] = useState(false); // FFmpeg đã load chưa
+  const [isFFmpegLoading, setIsFFmpegLoading] = useState(true); // FFmpeg đang tải
+  const [progress, setProgress] = useState(0); // Tiến độ xử lý (%)
+  const videoRef = useRef(null); // Ref cho thẻ <video>
+  const navigate = useNavigate(); // Hook điều hướng
 
-  // Hàm xử lý khi người dùng chọn file video
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]; // Lấy file đầu tiên từ input
-    if (!file) return; // Nếu không có file, thoát
+  // Tải FFmpeg khi component mount
+  useEffect(() => {
+    const loadFFmpeg = async () => {
+      try {
+        setIsFFmpegLoading(true);
+        if (!ffmpeg.loaded) {
+          // Dùng local (single-thread)
+          await ffmpeg.load({ coreURL: '/ffmpeg/dist/umd/ffmpeg-core.js' });
+          // Nếu lỗi, dùng CDN:
+          // await ffmpeg.load({ coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js' });
+          setIsFFmpegLoaded(true);
+          console.log('FFmpeg loaded successfully');
+        }
+      } catch (err) {
+        setError(`Failed to load FFmpeg: ${err.message}. Please refresh the page.`);
+        console.error('FFmpeg load error:', err);
+      } finally {
+        setIsFFmpegLoading(false);
+      }
+    };
+    loadFFmpeg();
+  }, []);
 
-    // Kiểm tra định dạng file (chỉ cho phép MP4, WebM, OGG)
+  // Hàm xử lý chọn file video
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Kiểm tra định dạng
     const allowedFormats = ['video/mp4', 'video/webm', 'video/ogg'];
     if (!allowedFormats.includes(file.type)) {
       setError('Only MP4, WebM, and OGG formats are supported.');
       return;
     }
 
-    // Kiểm tra kích thước file (giới hạn 500MB)
+    // Kiểm tra kích thước
     const maxSize = 500 * 1024 * 1024; // 500MB
     if (file.size > maxSize) {
       setError('File size must be less than 500MB.');
       return;
     }
 
-    // Tạo một thẻ <video> tạm để kiểm tra metadata (thời lượng, tỷ lệ khung hình)
-    const video = document.createElement('video');
-    video.preload = 'metadata'; // Chỉ tải metadata để kiểm tra, không tải toàn bộ video
-    video.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(video.src); // Giải phóng URL tạm sau khi dùng xong
-      const duration = video.duration; // Lấy thời lượng video (giây)
-      const width = video.videoWidth; // Lấy chiều rộng video
-      const height = video.videoHeight; // Lấy chiều cao video
-
-      // Kiểm tra thời lượng video (phải từ 1 giây đến 3 phút)
-      if (duration < 1 || duration > 180) {
-        setError('Video duration must be between 1 and 3 minutes.');
-        return;
-      }
-
-      // Kiểm tra tỷ lệ khung hình (phải gần 9:16 - dọc)
-      const aspectRatio = width / height;
-      if (Math.abs(aspectRatio - 9 / 16) > 0.1) {
-        setError('Video aspect ratio must be approximately 9:16.');
-        return;
-      }
-
-      // Nếu tất cả kiểm tra đều pass, lưu file và hiển thị preview
-      setSelectedFile(file); // Lưu file vào state
-      setError(''); // Xóa thông báo lỗi
-      if (videoRef.current) {
-        videoRef.current.src = URL.createObjectURL(file); // Hiển thị preview video
-      }
-    };
-    video.src = URL.createObjectURL(file); // Tạo URL tạm để đọc metadata
-  };
-
-  // Hàm xử lý khi người dùng click nút Upload
-  const handleUpload = async (e) => {
-    e.preventDefault(); // Ngăn form submit mặc định
-    if (!selectedFile || !title) {
-      setError('Please select a video and enter a title.'); // Kiểm tra xem đã chọn file và nhập title chưa
+    // Kiểm tra FFmpeg
+    if (!isFFmpegLoaded) {
+      setError('Loading FFmpeg, please wait.');
       return;
     }
 
-    setIsUploading(true); // Bật trạng thái đang upload (vô hiệu hóa nút Upload)
-    const formData = new FormData(); // Tạo FormData để gửi dữ liệu lên backend
-    formData.append('title', title); // Thêm field title
-    formData.append('video', selectedFile); // Thêm field video (file thật)
+    // Kiểm tra metadata
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = async () => {
+      window.URL.revokeObjectURL(video.src);
+      const duration = video.duration;
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+
+      // Kiểm tra thời lượng
+      if (duration < 1 || duration > 180) {
+        setError('Video duration must be between 1 second and 3 minutes.');
+        return;
+      }
+
+      setSelectedFile(file);
+      setError('');
+      setIsProcessing(true);
+      setProgress(0); // Reset tiến độ
+
+      try {
+        // Đọc file video
+        const fileReader = new FileReader();
+        const fileData = await new Promise((resolve) => {
+          fileReader.onload = () => resolve(fileReader.result);
+          fileReader.readAsArrayBuffer(file);
+        });
+
+        // Ghi file vào FFmpeg FS
+        ffmpeg.writeFile('input.mp4', new Uint8Array(fileData));
+
+        // Theo dõi tiến độ
+        ffmpeg.on('progress', ({ progress }) => {
+          setProgress(Math.round(progress * 100)); // Cập nhật % (0-100)
+        });
+
+        // Tính toán kích thước 9:16
+        const targetAspectRatio = 9 / 16;
+        let newWidth = width;
+        let newHeight = height;
+        let padX = 0;
+        let padY = 0;
+
+        const currentAspectRatio = width / height;
+        if (Math.abs(currentAspectRatio - targetAspectRatio) > 0.01) {
+          if (currentAspectRatio > targetAspectRatio) {
+            newHeight = Math.round(width / targetAspectRatio);
+            padY = (newHeight - height) / 2;
+          } else {
+            newWidth = Math.round(height * targetAspectRatio);
+            padX = (newWidth - width) / 2;
+          }
+        }
+
+        // Chạy FFmpeg
+        await ffmpeg.exec([
+          '-i',
+          'input.mp4',
+          '-vf',
+          `pad=${newWidth}:${newHeight}:${padX}:${padY}:black`,
+          '-c:a',
+          'copy',
+          '-q:v',
+          '10', // Giảm chất lượng để tăng tốc
+          'output.mp4',
+        ]);
+
+        // Lấy file xử lý
+        const data = await ffmpeg.readFile('output.mp4');
+        const processedBlob = new Blob([data.buffer], { type: 'video/mp4' });
+        const processedFileObj = new File([processedBlob], `processed_${file.name}`, {
+          type: 'video/mp4',
+        });
+
+        // Kiểm tra kích thước file xử lý
+        if (processedFileObj.size > maxSize) {
+          setError('Processed video size must be less than 500MB.');
+          setIsProcessing(false);
+          return;
+        }
+
+        setProcessedFile(processedFileObj);
+
+        // Hiển thị preview
+        if (videoRef.current) {
+          videoRef.current.src = URL.createObjectURL(processedFileObj);
+        }
+      } catch (err) {
+        setError('Failed to process video: ' + err.message);
+      } finally {
+        setIsProcessing(false);
+        setProgress(0); // Reset tiến độ
+        await ffmpeg.deleteFile('input.mp4');
+        await ffmpeg.deleteFile('output.mp4');
+      }
+    };
+    video.src = URL.createObjectURL(file);
+  };
+
+  // Hàm xử lý upload
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!processedFile || !title) {
+      setError('Please select a video and enter a title.');
+      return;
+    }
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('video', processedFile);
 
     try {
-      // Gửi request POST đến backend để upload video
       const response = await fetch('http://localhost:5000/api/videos/upload', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, // Gửi token để xác thực
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: formData, // Gửi FormData (chứa title và video file)
+        body: formData,
       });
 
-      const data = await response.json(); // Parse response từ backend
+      const data = await response.json();
       if (response.ok) {
-        navigate(routes.home); // Nếu upload thành công, điều hướng về trang chủ
+        navigate(routes.home);
       } else {
-        setError(data.message || 'Upload failed.'); // Nếu lỗi, hiển thị thông báo từ backend
+        setError(data.message || 'Upload failed.');
       }
     } catch (err) {
-      setError('Something went wrong: ' + err.message); // Nếu có lỗi mạng hoặc khác, hiển thị thông báo
+      setError('Something went wrong: ' + err.message);
     } finally {
-      setIsUploading(false); // Tắt trạng thái uploading (bật lại nút Upload)
+      setIsUploading(false);
     }
   };
 
   // Render giao diện
   return (
     <div className={cx('wrapper')}>
-      {/* Sidebar bên trái */}
+      {/* Sidebar */}
       <div className={cx('sidebar')}>
         <ul className={cx('menu')}>
           <li>Home</li>
@@ -123,37 +227,44 @@ function Upload() {
           Back to TikTok
         </a>
       </div>
-      {/* Khu vực chính (upload video) */}
+      {/* Content */}
       <div className={cx('content')}>
         <h2>Upload Video</h2>
         <div className={cx('upload-area')}>
-          {selectedFile ? (
-            <video ref={videoRef} controls className={cx('preview')} /> // Hiển thị preview video nếu đã chọn file
+          {isFFmpegLoading ? (
+            <p>Loading FFmpeg, please wait...</p>
+          ) : selectedFile ? (
+            isProcessing ? (
+              <div>
+                <p>Processing video...</p>
+                <div className={cx('progress-bar')}>
+                  <div className={cx('progress-bar-fill')} style={{ width: `${progress}%` }} />
+                </div>
+                <p>{progress}%</p> {/* Giữ text % để dễ theo dõi */}
+              </div>
+            ) : (
+              <video ref={videoRef} controls className={cx('preview')} />
+            )
           ) : (
             <>
               <p>Select video to upload</p>
               <p>Or drag and drop here</p>
-              <button className={cx('select-btn')}>
+              <button className={cx('select-btn')} disabled={!isFFmpegLoaded}>
                 Select video
-                <input type="file" accept="video/*" onChange={handleFileChange} /> {/* Input để chọn file */}
+                <input type="file" accept="video/*" onChange={handleFileChange} />
               </button>
             </>
           )}
         </div>
-        {error && <p className={cx('error')}>{error}</p>} {/* Hiển thị thông báo lỗi nếu có */}
-        {selectedFile && ( // Hiển thị form nhập tiêu đề và nút Upload nếu đã chọn file
+        {error && <p className={cx('error')}>{error}</p>}
+        {selectedFile && !isProcessing && (
           <form onSubmit={handleUpload} className={cx('form')}>
             <div className={cx('form-group')}>
               <label>Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)} // Cập nhật tiêu đề
-                required
-              />
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
             </div>
-            <button type="submit" className={cx('submit-btn')} disabled={isUploading}>
-              {isUploading ? 'Uploading...' : 'Upload'} {/* Nút Upload, thay đổi text khi đang upload */}
+            <button type="submit" className={cx('submit-btn')} disabled={isUploading || isProcessing}>
+              {isUploading ? 'Uploading...' : 'Upload'}
             </button>
           </form>
         )}
@@ -161,7 +272,7 @@ function Upload() {
         <div className={cx('info')}>
           <div>
             <h4>Size and duration</h4>
-            <p>Maximum size: 500MB, duration: 1-3 minutes.</p>
+            <p>Maximum size: 500MB, duration: 1 second-3 minutes.</p>
           </div>
           <div>
             <h4>File formats</h4>
@@ -173,7 +284,7 @@ function Upload() {
           </div>
           <div>
             <h4>Aspect ratios</h4>
-            <p>16:9 for landscape, 9:16 for vertical.</p>
+            <p>Any aspect ratio will be formatted to 9:16 with black bars.</p>
           </div>
         </div>
       </div>
